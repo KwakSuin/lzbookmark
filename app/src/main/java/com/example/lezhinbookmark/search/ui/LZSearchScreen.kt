@@ -57,7 +57,6 @@ import kotlinx.coroutines.launch
 fun LZSearchScreen(viewModel: LZSearchViewModel) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val images by viewModel.images.collectAsState()
-    val bookmarkedImages by viewModel.bookmarkedImages.collectAsState()
     val configuration = LocalConfiguration.current
     val halfScreenWidth = configuration.screenWidthDp.dp / 2
     val coroutineScope = rememberCoroutineScope()
