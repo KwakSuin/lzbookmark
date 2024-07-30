@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">LezhinBookmark</string>
+    <string name="search_tab_name">검색</string>
+    <string name="bookmark_tab_name">북마크</string>
 </resources>

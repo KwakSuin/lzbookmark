@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -16,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -23,6 +27,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.lezhinbookmark.R
 import com.example.lezhinbookmark.bookmark.ui.LZBookmarkScreen
 import com.example.lezhinbookmark.common.LZConstants
 import com.example.lezhinbookmark.main.common.LZNavigate
@@ -44,7 +49,7 @@ fun LZMain() {
     Scaffold(
         topBar = { LZTopAppBar() },
         bottomBar = { LZBottomAppBar(navController) },
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             LZNavHost(
@@ -60,10 +65,10 @@ fun LZMain() {
 fun LZTopAppBar() {
     // ToDo screen title 수정
     CenterAlignedTopAppBar(
-        title = { Text(text = "검색", color = Color.White) },
+        title = { Text(text = "검색", color = MaterialTheme.colorScheme.background) },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color(0xFF6799FF),
-            scrolledContainerColor = Color(0xFF6799FF)
+            containerColor = MaterialTheme.colorScheme.secondary,
+            scrolledContainerColor = MaterialTheme.colorScheme.secondary
         )
     )
 }
@@ -75,34 +80,25 @@ fun LZBottomAppBar(navController: NavHostController) {
         ScreenRoute.BookMarkScreen
     )
     NavigationBar(
-        containerColor = Color(0xFF8BBDFF),
-        contentColor = Color.White
+        containerColor = MaterialTheme.colorScheme.tertiary,
+        contentColor = MaterialTheme.colorScheme.background
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         items.forEach { item ->
             NavigationBarItem(
                 icon = { },
-                label = { Text(text = item.screen) },
+                label = {
+                    when (item.screen) {
+                        LZConstants.SEARCH_SCREEN_ID -> Text(text = stringResource(id = R.string.search_tab_name))
+                        LZConstants.BOOK_MARK_SCREEN_ID -> Text(text = stringResource(id = R.string.bookmark_tab_name))
+                    } },
                 alwaysShowLabel = true,
                 selected = currentRoute == item.screen,
-                onClick = {
-                    navController.navigate(item.screen) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
-                        navController.graph.startDestinationRoute?.let { route ->
-                            popUpTo(route) {
-                                saveState = true
-                            }
-                        }
-                        // Avoid multiple copies of the same destination when
-                        // reselecting the same item
-                        launchSingleTop = true
-                        // Restore state when reselecting a previously selected item
-                        restoreState = true
-                    }
-                }
+                onClick = { navController.navigate(item.screen) },
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.Transparent
+                )
             )
         }
     }
@@ -124,7 +120,7 @@ fun LZNavHost(
         startDestination = ScreenRoute.SearchScreen.screen,
         modifier = Modifier
     ) {
-        // ToDo 검색 화면
+        // search screen
         composable(ScreenRoute.SearchScreen.screen) {
             val context = LocalContext.current
             val viewModel: LZSearchViewModel = viewModel(
@@ -133,7 +129,7 @@ fun LZNavHost(
             LZSearchScreen(viewModel)
         }
 
-        // ToDo 북마크 목록 화면
+        // bookmark screen
         composable(ScreenRoute.BookMarkScreen.screen) {
             LZBookmarkScreen()
         }
