@@ -76,9 +76,9 @@ class LZSearchViewModel(
         }
     }
 
-    fun onUpdateFavorites(document: LZDocument?) {
+    fun onUpdateFavorites(keyword: String, document: LZDocument?) {
         viewModelScope.launch {
-            if (document != null) searchRepository.updateFavorite(document)
+            if (document != null) searchRepository.updateFavorite(keyword, document)
         }
     }
 

@@ -4,6 +4,7 @@ import com.example.lezhinbookmark.api.ApiResult
 import com.example.lezhinbookmark.api.LZApiService
 import com.example.lezhinbookmark.api.LZRestClient
 import com.example.lezhinbookmark.api.checkApiResponse
+import com.example.lezhinbookmark.common.LZUtils
 import com.example.lezhinbookmark.search.bean.LZDocument
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -31,13 +32,17 @@ class LZSearchRepository: LZISearchRepository {
 
     override fun observeFavorites(): Flow<Set<LZDocument>> = favorites
 
-    override suspend fun updateFavorite(document: LZDocument) {
+    override suspend fun updateFavorite(keyword: String, document: LZDocument) {
         favorites.update {
             it.toMutableSet().apply {
                 if (contains(document)) {
                     remove(document)
                 } else {
                     add(document)
+                }
+
+                LZUtils.getBookmarkMap().apply {
+                    put(keyword, it)
                 }
             }
         }

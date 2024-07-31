@@ -39,6 +39,7 @@ fun LZMain(widthSizeClass: WindowWidthSizeClass,) {
     val navigationActions = remember(navController) {
         LZNavigate(navController)
     }
+
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
 
     Scaffold(

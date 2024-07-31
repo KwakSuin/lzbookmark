@@ -61,7 +61,7 @@ fun LZSearchRoute(viewModel: LZSearchViewModel) {
 
     LZSearchRoute(
         uiState = uiState,
-        onUpdateFavorite = { viewModel.onUpdateFavorites(it) },
+        onUpdateFavorite = { keyword, document -> viewModel.onUpdateFavorites(keyword, document) },
         onUpdateSearchInput = { viewModel.onSearchKeywordChanged(it) }
     )
 }
@@ -69,7 +69,7 @@ fun LZSearchRoute(viewModel: LZSearchViewModel) {
 @Composable
 fun LZSearchRoute(
     uiState: SearchUiState,
-    onUpdateFavorite: (LZDocument?) -> Unit,
+    onUpdateFavorite: (String, LZDocument?) -> Unit,
     onUpdateSearchInput: (String) -> Unit,
 ) {
     LZSearchContents(
@@ -83,6 +83,7 @@ fun LZSearchRoute(
                 LZSearchScreen(
                     images = uiState.images,
                     favorites = uiState.favorites,
+                    searchKeyword = uiState.searchInput,
                     onUpdateFavorite = onUpdateFavorite
                 )
             }
@@ -94,9 +95,9 @@ fun LZSearchRoute(
 @Composable
 fun LZSearchContents(
     onUpdateSearchInput: (String) -> Unit,
-    contents: @Composable () -> Unit
+    contents: @Composable (String) -> Unit
 ) {
-    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var searchKeyword by rememberSaveable { mutableStateOf("") }
 
     Column {
         CenterAlignedTopAppBar(
@@ -108,14 +109,14 @@ fun LZSearchContents(
         )
 
         SearchBar(
-            searchQuery = searchQuery,
+            searchQuery = searchKeyword,
             onQueryChanged = {
-                    newText -> searchQuery = newText
+                    newText -> searchKeyword = newText
                 onUpdateSearchInput(newText)
             }
         )
 
-        contents()
+        contents(searchKeyword)
     }
 }
 
@@ -123,7 +124,8 @@ fun LZSearchContents(
 fun LZSearchScreen(
     images: List<LZDocument?>,
     favorites: Set<LZDocument?>,
-    onUpdateFavorite: (LZDocument?) -> Unit,
+    searchKeyword: String,
+    onUpdateFavorite: (String, LZDocument?) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val halfScreenWidth = configuration.screenWidthDp.dp / 2
@@ -147,7 +149,7 @@ fun LZSearchScreen(
                         image = image,
                         halfScreenWidth = halfScreenWidth,
                         isBookmarked = favorites.contains(image),
-                        onUpdateFavorite = { onUpdateFavorite.invoke(it) }
+                        onUpdateFavorite = { onUpdateFavorite.invoke(searchKeyword, it) }
                     )
                 }
             }

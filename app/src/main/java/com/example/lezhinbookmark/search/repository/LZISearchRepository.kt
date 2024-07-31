@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface LZISearchRepository {
     fun observeFavorites(): Flow<Set<LZDocument>>
 
-    suspend fun updateFavorite(document: LZDocument)
+    suspend fun updateFavorite(keyword: String, document: LZDocument)
 
     suspend fun getSearchImage(query: String): List<LZDocument?>
 }
