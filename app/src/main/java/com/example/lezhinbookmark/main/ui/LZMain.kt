@@ -25,7 +25,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.lezhinbookmark.R
 import com.example.lezhinbookmark.bookmark.repository.LZBookmarkRepository
 import com.example.lezhinbookmark.bookmark.ui.LZBookmarkRoute
-import com.example.lezhinbookmark.bookmark.ui.LZBookmarkScreen
 import com.example.lezhinbookmark.bookmark.viewmodel.LZBookmarkViewModel
 import com.example.lezhinbookmark.common.LZConstants
 import com.example.lezhinbookmark.main.common.LZNavigate

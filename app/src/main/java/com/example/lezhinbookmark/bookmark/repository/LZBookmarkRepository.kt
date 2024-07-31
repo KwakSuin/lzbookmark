@@ -8,12 +8,11 @@ import kotlinx.coroutines.flow.update
 class LZBookmarkRepository: LZIBookmarkRepository {
     private val bookmarkData = MutableStateFlow<HashMap<String, Set<LZDocument?>>>(hashMapOf())
 
-    override suspend fun onUpdateFavoritesMap(keyword: String, document: Set<LZDocument?>) {
+    override suspend fun onUpdateFavoritesMap(keyword: String) {
         val bookmarkMap = LZUtils.getBookmarkMap()
-        bookmarkMap[keyword] = document
 
         bookmarkData.update {
-            bookmarkMap.apply { remove(keyword, document) }
+            bookmarkMap.apply { remove(keyword) }
         }
     }
 

@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.MutableStateFlow
 interface LZIBookmarkRepository {
     fun observeBookmarkData(): MutableStateFlow<HashMap<String, Set<LZDocument?>>>
 
-    suspend fun onUpdateFavoritesMap(keyword: String, document: Set<LZDocument?>)
+    suspend fun onUpdateFavoritesMap(keyword: String)
 }

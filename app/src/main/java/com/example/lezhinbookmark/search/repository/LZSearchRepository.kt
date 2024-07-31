@@ -38,7 +38,7 @@ class LZSearchRepository: LZISearchRepository {
                     add(document)
                 }
 
-                LZUtils.getBookmarkMap().apply {
+                LZUtils.bookmarkMaps.apply {
                     put(keyword, it)
                 }
             }

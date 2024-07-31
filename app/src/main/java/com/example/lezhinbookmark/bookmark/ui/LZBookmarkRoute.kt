@@ -20,18 +20,27 @@ import com.example.lezhinbookmark.search.ui.DefaultScreen
 fun LZBookmarkRoute(viewModel: LZBookmarkViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LZBookmarkRoute(uiState)
+    LZBookmarkRoute(
+        uiState = uiState,
+        onUpdateFavorite = { viewModel.onUpdateFavoritesMap(it) }
+    )
 }
 
 @Composable
-fun LZBookmarkRoute(uiState: BookmarkUiState) {
+fun LZBookmarkRoute(
+    uiState: BookmarkUiState,
+    onUpdateFavorite: (String) -> Unit
+) {
     LZBookmarkContents {
         when (uiState) {
             is BookmarkUiState.NoData -> {
                 DefaultScreen()
             }
             is BookmarkUiState.HasData -> {
-                LZBookmarkScreen(uiState.bookmarkData)
+                LZBookmarkScreen(
+                    bookmarkData = uiState.bookmarkData,
+                    onUpdateFavorite = onUpdateFavorite
+                )
             }
         }
     }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.lezhinbookmark.bookmark.repository.LZBookmarkRepository
+import com.example.lezhinbookmark.common.LZUtils
 import com.example.lezhinbookmark.search.bean.LZDocument
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -30,7 +31,7 @@ private data class BookmarkViewModelState(
     val bookmarkData: HashMap<String, Set<LZDocument?>> = hashMapOf(),
 ) {
     fun toUiState(): BookmarkUiState =
-        if (bookmarkData.isEmpty()) {
+        if (LZUtils.getBookmarkMap().isEmpty()) {
             BookmarkUiState.NoData(
                 isLoading = isLoading
             )
@@ -57,6 +58,9 @@ class LZBookmarkViewModel(
         .stateIn(viewModelScope, SharingStarted.Eagerly, viewModelState.value.toUiState())
 
     init {
+        val initialData = LZUtils.getBookmarkMap()
+        viewModelState.update { it.copy(bookmarkData = initialData) }
+
         viewModelScope.launch {
             bookmarkRepository.observeBookmarkData().collect { favorites ->
                 viewModelState.update { it.copy(bookmarkData = favorites) }
@@ -64,9 +68,9 @@ class LZBookmarkViewModel(
         }
     }
 
-    fun onUpdateFavoritesMap(keyword: String, document: Set<LZDocument?>) {
+    fun onUpdateFavoritesMap(keyword: String) {
         viewModelScope.launch {
-            bookmarkRepository.onUpdateFavoritesMap(keyword = keyword, document = document)
+            bookmarkRepository.onUpdateFavoritesMap(keyword = keyword)
         }
     }
 

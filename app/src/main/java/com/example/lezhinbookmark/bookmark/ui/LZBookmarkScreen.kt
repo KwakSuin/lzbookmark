@@ -1,5 +1,6 @@
 package com.example.lezhinbookmark.bookmark.ui
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,15 +30,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.lezhinbookmark.R
-import com.example.lezhinbookmark.common.LZUtils
 import com.example.lezhinbookmark.search.bean.LZDocument
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LZBookmarkScreen(
-    bookmarkData: HashMap<String, Set<LZDocument?>>
+    bookmarkData: HashMap<String, Set<LZDocument?>>,
+    onUpdateFavorite: (String) -> Unit
 ) {
     val deleteBookmarkData = remember { mutableStateListOf<String>() }
+    Log.e("si.kwak" ,"bookmarkData = $bookmarkData")
 
     // 초기화
     deleteBookmarkData.clear()
@@ -51,7 +53,7 @@ fun LZBookmarkScreen(
             Button(
                 onClick = {
                     deleteBookmarkData.forEach { deleteItem ->
-                        LZUtils.getBookmarkMap().remove(deleteItem)
+                        onUpdateFavorite(deleteItem)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -64,8 +66,7 @@ fun LZBookmarkScreen(
             }
         }
 
-        items(LZUtils.getBookmarkMap().keys.toList().reversed()) { keyword ->
-            val bookmarkItem = bookmarkData[keyword]
+        items(bookmarkData.keys.toList().reversed()) { keyword ->
             var checked by remember { mutableStateOf(false) }
 
             Column(modifier = Modifier.fillMaxSize()) {
@@ -84,7 +85,7 @@ fun LZBookmarkScreen(
 
                     Spacer(modifier = Modifier.width(10.dp))
 
-                    Text(text = "$keyword(${bookmarkItem?.size ?: 0})")
+                    Text(text = "$keyword(${bookmarkData.size})")
                 }
                 HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
             }
