@@ -3,48 +3,101 @@ package com.example.lezhinbookmark.search.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.lezhinbookmark.common.LZUtils
 import com.example.lezhinbookmark.search.bean.LZDocument
 import com.example.lezhinbookmark.search.repository.LZSearchRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class LZSearchViewModel(private val searchRepository: LZSearchRepository): ViewModel() {
-    private val _images = MutableStateFlow<List<LZDocument?>>(emptyList())
-    val images: StateFlow<List<LZDocument?>> get() = _images
+sealed interface SearchUiState {
+    val isLoading: Boolean
+    val searchInput: String
 
-    private val _bookmarkedImages = MutableStateFlow<Map<String, Set<LZDocument?>>>(emptyMap())
-    val bookmarkedImages: StateFlow<Map<String, Set<LZDocument?>>> get() = _bookmarkedImages
+    data class NoData(
+        override val isLoading: Boolean,
+        override val searchInput: String
+    ): SearchUiState
 
-    private val _isBookmarked = MutableStateFlow<Boolean>(false)
-    val isBookmarked: StateFlow<Boolean> get() = _isBookmarked
+    data class HasData(
+        val images: List<LZDocument?>,
+        val favorites: Set<LZDocument?> = emptySet(),
+        override val isLoading: Boolean,
+        override val searchInput: String,
+    ): SearchUiState
+}
 
-    suspend fun doSearchImage(query: String) {
+private data class SearchViewModelState(
+    val images: List<LZDocument?> = emptyList(),
+    val favorites: Set<LZDocument?> = emptySet(),
+    val isLoading: Boolean = false,
+    val searchInput: String = ""
+) {
+    fun toUiState(): SearchUiState =
+        if (images.isEmpty()) {
+            SearchUiState.NoData(
+                isLoading = isLoading,
+                searchInput = searchInput
+            )
+        } else {
+            SearchUiState.HasData(
+                images = images,
+                isLoading = isLoading,
+                searchInput = searchInput,
+                favorites = favorites
+            )
+        }
+}
+
+class LZSearchViewModel(
+    private val searchRepository: LZSearchRepository
+): ViewModel() {
+
+    private val viewModelState = MutableStateFlow(
+        SearchViewModelState(
+            isLoading = false,
+            searchInput = ""
+        )
+    )
+
+    val uiState = viewModelState
+        .map(SearchViewModelState::toUiState)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, viewModelState.value.toUiState())
+
+    init {
         viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                searchRepository.getSearchImage(query)
+            searchRepository.observeFavorites().collect { favorites ->
+                viewModelState.update { it.copy(favorites = favorites) }
             }
-
-            _images.value = result
         }
     }
 
-    private fun updateBookmarkedImages() {
-        val bookmarkMap = LZUtils.getBookmarkMap()
-        val updatedMap = bookmarkMap.mapValues { it.value.toSet() }
-        _bookmarkedImages.value = updatedMap
+    fun onUpdateFavorites(document: LZDocument?) {
+        viewModelScope.launch {
+            if (document != null) searchRepository.updateFavorite(document)
+        }
     }
 
-    fun toggleBookmark(query: String, image: LZDocument?) {
-        LZUtils.toggleBookmark(query, image)
-        updateBookmarkedImages()
-    }
+    fun onSearchKeywordChanged(searchInput: String) {
+        viewModelScope.launch {
+            viewModelState.update {
+                it.copy(searchInput = searchInput)
+            }
 
-    fun isBookmarked(query: String, image: LZDocument?): Boolean {
-        return LZUtils.isBookmarked(query, image)
+            if (searchInput.isBlank()) {
+                viewModelState.update { it.copy(images = emptyList(), isLoading = false) }
+            } else {
+                viewModelState.update { it.copy(isLoading = true) }
+                val images = withContext(Dispatchers.IO) {
+                    searchRepository.getSearchImage(searchInput)
+                }
+                viewModelState.update { it.copy(images = images, isLoading = false) }
+            }
+        }
     }
 
     companion object {

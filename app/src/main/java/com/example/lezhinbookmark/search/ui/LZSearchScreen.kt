@@ -21,17 +21,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,31 +42,91 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.lezhinbookmark.R
 import com.example.lezhinbookmark.common.LZUiUtils.noRippleClickable
 import com.example.lezhinbookmark.search.bean.LZDocument
 import com.example.lezhinbookmark.search.viewmodel.LZSearchViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.example.lezhinbookmark.search.viewmodel.SearchUiState
 
 @Composable
-fun LZSearchScreen(viewModel: LZSearchViewModel) {
-    var searchQuery by rememberSaveable { mutableStateOf("") }
-    val images by viewModel.images.collectAsState()
-    val configuration = LocalConfiguration.current
-    val halfScreenWidth = configuration.screenWidthDp.dp / 2
-    val coroutineScope = rememberCoroutineScope()
+fun LZSearchRoute(viewModel: LZSearchViewModel) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(searchQuery) {
-        coroutineScope.launch {
-            delay(1000)
-            if (searchQuery.isNotBlank()) viewModel.doSearchImage(searchQuery)
+    LZSearchRoute(
+        uiState = uiState,
+        onUpdateFavorite = { viewModel.onUpdateFavorites(it) },
+        onUpdateSearchInput = { viewModel.onSearchKeywordChanged(it) }
+    )
+}
+
+@Composable
+fun LZSearchRoute(
+    uiState: SearchUiState,
+    onUpdateFavorite: (LZDocument?) -> Unit,
+    onUpdateSearchInput: (String) -> Unit,
+) {
+    LZSearchContents(
+        onUpdateSearchInput = onUpdateSearchInput
+    ) {
+        when (uiState) {
+            is SearchUiState.NoData -> {
+                DefaultScreen()
+            }
+            is SearchUiState.HasData -> {
+                LZSearchScreen(
+                    images = uiState.images,
+                    favorites = uiState.favorites,
+                    onUpdateFavorite = onUpdateFavorite
+                )
+            }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LZSearchContents(
+    onUpdateSearchInput: (String) -> Unit,
+    contents: @Composable () -> Unit
+) {
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+
+    Column {
+        CenterAlignedTopAppBar(
+            title = { Text(text = stringResource(id = R.string.search_tab_name), color = MaterialTheme.colorScheme.background) },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.secondary,
+                scrolledContainerColor = MaterialTheme.colorScheme.secondary
+            )
+        )
+
+        SearchBar(
+            searchQuery = searchQuery,
+            onQueryChanged = {
+                    newText -> searchQuery = newText
+                onUpdateSearchInput(newText)
+            }
+        )
+
+        contents()
+    }
+}
+
+@Composable
+fun LZSearchScreen(
+    images: List<LZDocument?>,
+    favorites: Set<LZDocument?>,
+    onUpdateFavorite: (LZDocument?) -> Unit,
+) {
+    val configuration = LocalConfiguration.current
+    val halfScreenWidth = configuration.screenWidthDp.dp / 2
 
     Column(
         modifier = Modifier
@@ -74,8 +134,6 @@ fun LZSearchScreen(viewModel: LZSearchViewModel) {
             .wrapContentHeight()
             .drawBehind { drawRect(color = Color.White) }
     ) {
-        SearchBar(searchQuery) { newText -> searchQuery = newText }
-
         if (images.isEmpty()) {
             DefaultScreen()
         } else {
@@ -88,8 +146,8 @@ fun LZSearchScreen(viewModel: LZSearchViewModel) {
                     ImageItem(
                         image = image,
                         halfScreenWidth = halfScreenWidth,
-                        isBookmarked = viewModel.isBookmarked(query = searchQuery, image = image),
-                        onBookmarkClick = { viewModel.toggleBookmark(query = searchQuery, image = image) }
+                        isBookmarked = favorites.contains(image),
+                        onUpdateFavorite = { onUpdateFavorite.invoke(it) }
                     )
                 }
             }
@@ -99,7 +157,10 @@ fun LZSearchScreen(viewModel: LZSearchViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar(searchQuery: String, onQueryChanged: (String) -> Unit) {
+fun SearchBar(
+    searchQuery: String,
+    onQueryChanged: (String) -> Unit
+) {
     BasicTextField(
         value = searchQuery,
         onValueChange = onQueryChanged,
@@ -135,7 +196,7 @@ fun ImageItem(
     image: LZDocument?,
     halfScreenWidth: Dp,
     isBookmarked: Boolean,
-    onBookmarkClick: () -> Unit
+    onUpdateFavorite: (LZDocument?) -> Unit,
 ) {
     var isErrorImage by rememberSaveable { mutableStateOf(false) }
 
@@ -163,7 +224,7 @@ fun ImageItem(
                 contentDescription = "bookmark",
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .noRippleClickable { onBookmarkClick() },
+                    .noRippleClickable { onUpdateFavorite(image) },
                 tint = if (isBookmarked) Color.Red else Color.White
             )
         }
