@@ -1,7 +1,6 @@
 package com.example.lezhinbookmark.api
 
 import com.example.lezhinbookmark.common.LZConstants
-import com.google.gson.internal.GsonBuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -10,7 +9,6 @@ import java.util.concurrent.TimeUnit
 
 class LZRestClient<T> {
     private var service: T? = null
-    private var baseUrl: String? = null
     private var timeOut: Long = 20L
 
     fun getClient(type: Class<out T>?): T {

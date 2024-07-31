@@ -30,11 +30,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.lezhinbookmark.R
 import com.example.lezhinbookmark.common.LZUtils
+import com.example.lezhinbookmark.search.bean.LZDocument
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LZBookmarkScreen() {
-    val bookmarkData = LZUtils.getBookmarkMap()
+fun LZBookmarkScreen(
+    bookmarkData: HashMap<String, Set<LZDocument?>>
+) {
     val deleteBookmarkData = remember { mutableStateListOf<String>() }
 
     // 초기화

@@ -7,17 +7,41 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.lezhinbookmark.R
-import com.example.lezhinbookmark.common.LZUtils
+import com.example.lezhinbookmark.bookmark.viewmodel.BookmarkUiState
+import com.example.lezhinbookmark.bookmark.viewmodel.LZBookmarkViewModel
 import com.example.lezhinbookmark.search.ui.DefaultScreen
 
 
+@Composable
+fun LZBookmarkRoute(viewModel: LZBookmarkViewModel) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LZBookmarkRoute(uiState)
+}
+
+@Composable
+fun LZBookmarkRoute(uiState: BookmarkUiState) {
+    LZBookmarkContents {
+        when (uiState) {
+            is BookmarkUiState.NoData -> {
+                DefaultScreen()
+            }
+            is BookmarkUiState.HasData -> {
+                LZBookmarkScreen(uiState.bookmarkData)
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LZBookmarkRoute() {
-    val bookmarkData = LZUtils.getBookmarkMap()
-
+fun LZBookmarkContents(
+    contents: @Composable () -> Unit
+) {
     Column {
         CenterAlignedTopAppBar(
             title = { Text(text = stringResource(id = R.string.bookmark_tab_name), color = MaterialTheme.colorScheme.background) },
@@ -27,9 +51,6 @@ fun LZBookmarkRoute() {
             )
         )
 
-        when {
-            bookmarkData.isEmpty() -> { DefaultScreen() }
-            else -> { LZBookmarkScreen() }
-        }
+        contents()
     }
 }

@@ -6,7 +6,6 @@ import com.example.lezhinbookmark.api.LZRestClient
 import com.example.lezhinbookmark.api.checkApiResponse
 import com.example.lezhinbookmark.common.LZUtils
 import com.example.lezhinbookmark.search.bean.LZDocument
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update

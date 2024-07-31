@@ -119,7 +119,7 @@ fun LZNavHost(
             val viewModel: LZBookmarkViewModel = viewModel(
                 factory = LZBookmarkViewModel.provideFactory(LZBookmarkRepository())
             )
-            LZBookmarkRoute()
+            LZBookmarkRoute(viewModel)
         }
     }
 }

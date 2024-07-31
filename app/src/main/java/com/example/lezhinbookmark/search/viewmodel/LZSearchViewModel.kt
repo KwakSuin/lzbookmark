@@ -24,10 +24,10 @@ sealed interface SearchUiState {
     ): SearchUiState
 
     data class HasData(
-        val images: List<LZDocument?>,
-        val favorites: Set<LZDocument?> = emptySet(),
         override val isLoading: Boolean,
         override val searchInput: String,
+        val images: List<LZDocument?>,
+        val favorites: Set<LZDocument?> = emptySet(),
     ): SearchUiState
 }
 

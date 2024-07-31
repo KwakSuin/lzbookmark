@@ -1,7 +1,5 @@
 package com.example.lezhinbookmark.api
 
-import android.content.Context
-import com.example.lezhinbookmark.common.LZConstants
 import org.json.JSONObject
 import retrofit2.Response
 

@@ -8,11 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 
 object LZUiUtils {
-    /**
-     * Ripple Effect 제거한 클릭 메서드
-     *
-     * @param onClick               onClick
-     */
+
     @SuppressLint("ModifierFactoryUnreferencedReceiver")
     inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier =
         composed {
