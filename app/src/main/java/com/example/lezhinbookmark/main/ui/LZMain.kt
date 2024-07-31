@@ -23,7 +23,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.lezhinbookmark.R
+import com.example.lezhinbookmark.bookmark.repository.LZBookmarkRepository
+import com.example.lezhinbookmark.bookmark.ui.LZBookmarkRoute
 import com.example.lezhinbookmark.bookmark.ui.LZBookmarkScreen
+import com.example.lezhinbookmark.bookmark.viewmodel.LZBookmarkViewModel
 import com.example.lezhinbookmark.common.LZConstants
 import com.example.lezhinbookmark.main.common.LZNavigate
 import com.example.lezhinbookmark.main.common.NavSingleton
@@ -113,7 +116,10 @@ fun LZNavHost(
 
         // bookmark screen
         composable(ScreenRoute.BookMarkScreen.screen) {
-            LZBookmarkScreen()
+            val viewModel: LZBookmarkViewModel = viewModel(
+                factory = LZBookmarkViewModel.provideFactory(LZBookmarkRepository())
+            )
+            LZBookmarkRoute()
         }
     }
 }

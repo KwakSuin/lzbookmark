@@ -54,6 +54,10 @@ import com.example.lezhinbookmark.common.LZUiUtils.noRippleClickable
 import com.example.lezhinbookmark.search.bean.LZDocument
 import com.example.lezhinbookmark.search.viewmodel.LZSearchViewModel
 import com.example.lezhinbookmark.search.viewmodel.SearchUiState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun LZSearchRoute(viewModel: LZSearchViewModel) {
@@ -111,7 +115,11 @@ fun LZSearchContents(
         SearchBar(
             searchQuery = searchKeyword,
             onQueryChanged = {
-                    newText -> searchKeyword = newText
+                newText -> searchKeyword = newText
+
+                CoroutineScope(Dispatchers.Default).launch {
+                    delay(1000L)
+                }
                 onUpdateSearchInput(newText)
             }
         )

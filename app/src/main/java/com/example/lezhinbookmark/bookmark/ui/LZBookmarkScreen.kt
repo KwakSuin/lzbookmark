@@ -31,25 +31,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lezhinbookmark.R
 import com.example.lezhinbookmark.common.LZUtils
 import com.example.lezhinbookmark.search.ui.DefaultScreen
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
-fun LZBookmarkScreen() {
+fun LZBookmarkRoute() {
     val bookmarkData = LZUtils.getBookmarkMap()
-    val deleteBookmarkData = remember { mutableStateListOf<String>() }
 
-    // 초기화
-    deleteBookmarkData.clear()
-
-    if (bookmarkData.isEmpty()) {
-        DefaultScreen()
-    } else {
+    Column {
         CenterAlignedTopAppBar(
             title = { Text(text = stringResource(id = R.string.bookmark_tab_name), color = MaterialTheme.colorScheme.background) },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -58,52 +50,67 @@ fun LZBookmarkScreen() {
             )
         )
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = 10.dp, horizontal = 20.dp)
-        ) {
-            stickyHeader {
-                Button(
-                    onClick = {
-                        deleteBookmarkData.forEach { deleteItem ->
-                            LZUtils.getBookmarkMap().remove(deleteItem)
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1F51B7),
-                        contentColor = Color.White,
-                    )
-                ) {
-                    Text(text = "삭제")
-                }
-            }
+        when {
+            bookmarkData.isEmpty() -> { DefaultScreen()}
+            else -> { LZBookmarkScreen() }
+        }
+    }
+}
 
-            items(LZUtils.getBookmarkMap().keys.toList().reversed()) { keyword ->
-                val bookmarkItem = bookmarkData[keyword]
-                var checked by remember { mutableStateOf(false) }
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun LZBookmarkScreen() {
+    val bookmarkData = LZUtils.getBookmarkMap()
+    val deleteBookmarkData = remember { mutableStateListOf<String>() }
 
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(
-                            checked = checked,
-                            onCheckedChange = {
-                                checked = it
-                                deleteBookmarkData.add(keyword)
-                            },
-                            colors = CheckboxDefaults.colors(
-                                checkedColor = Color(0xFF8BBDFF),
-                                uncheckedColor = Color(0xFF8BBDFF)
-                            ),
-                        )
+    // 초기화
+    deleteBookmarkData.clear()
 
-                        Spacer(modifier = Modifier.width(10.dp))
-
-                        Text(text = "$keyword(${bookmarkItem?.size ?: 0})")
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 10.dp, horizontal = 20.dp)
+    ) {
+        stickyHeader {
+            Button(
+                onClick = {
+                    deleteBookmarkData.forEach { deleteItem ->
+                        LZUtils.getBookmarkMap().remove(deleteItem)
                     }
-                    HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF1F51B7),
+                    contentColor = Color.White,
+                )
+            ) {
+                Text(text = stringResource(id = R.string.delete))
+            }
+        }
+
+        items(LZUtils.getBookmarkMap().keys.toList().reversed()) { keyword ->
+            val bookmarkItem = bookmarkData[keyword]
+            var checked by remember { mutableStateOf(false) }
+
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            deleteBookmarkData.add(keyword)
+                        },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = Color(0xFF8BBDFF),
+                            uncheckedColor = Color(0xFF8BBDFF)
+                        ),
+                    )
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Text(text = "$keyword(${bookmarkItem?.size ?: 0})")
                 }
+                HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
             }
         }
     }

@@ -15,8 +15,6 @@ class LZSearchRepository: LZISearchRepository {
     private val favorites = MutableStateFlow<Set<LZDocument>>(setOf())
 
     override suspend fun getSearchImage(query: String): List<LZDocument?> {
-        delay(1000L)
-
         val restClient = LZRestClient<LZApiService>()
 
         return when (val result = checkApiResponse { restClient.getClient(LZApiService::class.java).getSearchImage(query = query) }) {
