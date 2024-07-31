@@ -4,6 +4,7 @@ import com.example.lezhinbookmark.api.ApiResult
 import com.example.lezhinbookmark.api.LZApiService
 import com.example.lezhinbookmark.api.LZRestClient
 import com.example.lezhinbookmark.api.checkApiResponse
+import com.example.lezhinbookmark.bookmark.bean.LZBookmarkData
 import com.example.lezhinbookmark.common.LZUtils
 import com.example.lezhinbookmark.search.bean.LZDocument
 import kotlinx.coroutines.flow.Flow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.update
 
 class LZSearchRepository: LZISearchRepository {
     private val favorites = MutableStateFlow<Set<LZDocument>>(setOf())
+    private val bookmarkMap = hashMapOf<String, Set<LZDocument?>>()
 
     override suspend fun getSearchImage(query: String): List<LZDocument?> {
         val restClient = LZRestClient<LZApiService>()
@@ -37,11 +39,9 @@ class LZSearchRepository: LZISearchRepository {
                 } else {
                     add(document)
                 }
-
-                LZUtils.bookmarkMaps.apply {
-                    put(keyword, it)
-                }
             }
         }
+        bookmarkMap[keyword] = favorites.value
+        LZUtils.bookmark = LZBookmarkData(bookmarkData = bookmarkMap)
     }
 }

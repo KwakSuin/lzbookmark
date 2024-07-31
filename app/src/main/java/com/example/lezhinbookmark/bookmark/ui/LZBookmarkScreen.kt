@@ -21,7 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -30,19 +29,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.lezhinbookmark.R
-import com.example.lezhinbookmark.search.bean.LZDocument
+import com.example.lezhinbookmark.bookmark.bean.LZBookmarkData
 import com.example.lezhinbookmark.search.ui.DefaultScreen
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LZBookmarkScreen(
-    bookmarkData: HashMap<String, Set<LZDocument?>>,
+    bookmarkData: LZBookmarkData?,
     onUpdateFavorite: (List<String>) -> Unit
 ) {
     val deleteBookmarkData = rememberSaveable { mutableListOf("") }
     deleteBookmarkData.clear()
 
-    if (bookmarkData.isEmpty()) {
+    if (bookmarkData == null || bookmarkData.bookmarkData.isEmpty()) {
         DefaultScreen()
     } else {
         LazyColumn(
@@ -65,7 +64,7 @@ fun LZBookmarkScreen(
             }
 
             // 북마크 목록
-            items(bookmarkData.keys.reversed()) { keyword ->
+            items(bookmarkData.bookmarkData.keys.reversed()) { keyword ->
                 var checked by rememberSaveable { mutableStateOf(false) }
 
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -87,7 +86,7 @@ fun LZBookmarkScreen(
 
                         Spacer(modifier = Modifier.width(10.dp))
 
-                        Text(text = "$keyword(${bookmarkData[keyword]?.size ?: 0})")
+                        Text(text = "$keyword(${bookmarkData.bookmarkData[keyword]?.size ?: 0})")
                     }
                     HorizontalDivider(
                         thickness = 1.dp,

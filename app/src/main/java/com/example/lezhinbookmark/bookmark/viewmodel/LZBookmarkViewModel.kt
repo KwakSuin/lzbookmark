@@ -1,12 +1,11 @@
 package com.example.lezhinbookmark.bookmark.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.lezhinbookmark.bookmark.bean.LZBookmarkData
 import com.example.lezhinbookmark.bookmark.repository.LZBookmarkRepository
 import com.example.lezhinbookmark.common.LZUtils
-import com.example.lezhinbookmark.search.bean.LZDocument
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,23 +24,23 @@ sealed interface BookmarkUiState {
 
     data class HasData(
         override val isLoading: Boolean,
-        val bookmarkData: HashMap<String, Set<LZDocument?>> = hashMapOf(),
+        val bookmark: LZBookmarkData?,
     ): BookmarkUiState
 }
 
 private data class BookmarkViewModelState(
     val isLoading: Boolean = false,
-    val bookmarkData: HashMap<String, Set<LZDocument?>> = hashMapOf(),
+    val bookmark: LZBookmarkData?,
 ) {
     fun toUiState(): BookmarkUiState =
-        if (bookmarkData.isEmpty()) {
+        if (bookmark == null || bookmark.bookmarkData.isEmpty()) {
             BookmarkUiState.NoData(
                 isLoading = isLoading
             )
         } else {
             BookmarkUiState.HasData(
                 isLoading = isLoading,
-                bookmarkData = bookmarkData,
+                bookmark = bookmark,
             )
         }
 }
@@ -52,7 +51,7 @@ class LZBookmarkViewModel(
     private val viewModelState = MutableStateFlow(
         BookmarkViewModelState(
             isLoading = false,
-            bookmarkData = hashMapOf(),
+            bookmark = null,
         )
     )
 
@@ -62,19 +61,18 @@ class LZBookmarkViewModel(
 
     init {
         viewModelScope.launch {
-            val initialData = LZUtils.getBookmarkMap()
-            viewModelState.update { it.copy(bookmarkData = initialData) }
+            viewModelState.update { it.copy(bookmark = LZUtils.getBookmarkData()) }
         }
     }
 
     fun onUpdateFavoritesMap(keyword: List<String>) {
         viewModelScope.launch {
             val result = withContext(Dispatchers.Default) {
-                bookmarkRepository.onUpdateFavoritesMap(bookmarkData = viewModelState.value.bookmarkData, keyword = keyword)
+                bookmarkRepository.onUpdateFavoritesMap(bookmarkData = viewModelState.value.bookmark, keyword = keyword)
             }
 
             viewModelState.update {
-                it.copy(bookmarkData = result)
+                it.copy(bookmark = result)
             }
         }
     }

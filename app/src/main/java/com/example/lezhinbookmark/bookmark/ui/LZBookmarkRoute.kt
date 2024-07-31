@@ -38,7 +38,7 @@ fun LZBookmarkRoute(
             }
             is BookmarkUiState.HasData -> {
                 LZBookmarkScreen(
-                    bookmarkData = uiState.bookmarkData,
+                    bookmarkData = uiState.bookmark,
                     onUpdateFavorite = onUpdateFavorite
                 )
             }
