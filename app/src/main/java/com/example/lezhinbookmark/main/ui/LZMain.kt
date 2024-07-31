@@ -88,7 +88,13 @@ fun LZBottomAppBar(navController: NavHostController) {
                 },
                 alwaysShowLabel = true,
                 selected = currentRoute == item.screen,
-                onClick = { navController.navigate(item.screen) },
+                onClick = {
+                    navController.navigate(item.screen) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                    }
+                },
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = Color.Transparent,
                     selectedIconColor = MaterialTheme.colorScheme.surface,
