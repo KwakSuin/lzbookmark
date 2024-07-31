@@ -1,5 +1,8 @@
 package com.example.lezhinbookmark.main.ui
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -12,9 +15,12 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -42,6 +48,7 @@ fun LZMain(widthSizeClass: WindowWidthSizeClass,) {
         LZNavigate(navController)
     }
 
+    // 폴더블 및 태블릿 대응
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
 
     Scaffold(
@@ -55,6 +62,7 @@ fun LZMain(widthSizeClass: WindowWidthSizeClass,) {
             )
         }
     }
+    BackOnPressed()
 }
 
 @Composable
@@ -77,12 +85,16 @@ fun LZBottomAppBar(navController: NavHostController) {
                         LZConstants.SEARCH_SCREEN_ID -> Text(text = stringResource(id = R.string.search_tab_name))
                         LZConstants.BOOK_MARK_SCREEN_ID -> Text(text = stringResource(id = R.string.bookmark_tab_name))
                     }
-                        },
+                },
                 alwaysShowLabel = true,
                 selected = currentRoute == item.screen,
                 onClick = { navController.navigate(item.screen) },
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Color.Transparent
+                    indicatorColor = Color.Transparent,
+                    selectedIconColor = MaterialTheme.colorScheme.surface,
+                    selectedTextColor = MaterialTheme.colorScheme.surface,
+                    unselectedIconColor = MaterialTheme.colorScheme.background,
+                    unselectedTextColor = MaterialTheme.colorScheme.background,
                 )
             )
         }
@@ -122,6 +134,26 @@ fun LZNavHost(
         }
     }
 }
+
+@Composable
+fun BackOnPressed() {
+    val context = LocalContext.current
+    var backPressedState by remember { mutableStateOf(true) }
+    var backPressedTime = 0L
+
+    BackHandler(enabled = backPressedState) {
+        if(System.currentTimeMillis() - backPressedTime <= 400L) {
+            // 앱 종료
+            (context as Activity).finish()
+        } else {
+            backPressedState = true
+
+            Toast.makeText(context, context.getString(R.string.back_pressed_message), Toast.LENGTH_SHORT).show()
+        }
+        backPressedTime = System.currentTimeMillis()
+    }
+}
+
 
 sealed class ScreenRoute(val screen: String) {
     object SearchScreen: ScreenRoute(LZConstants.SEARCH_SCREEN_ID) {

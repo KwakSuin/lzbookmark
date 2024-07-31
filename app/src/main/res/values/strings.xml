@@ -3,4 +3,5 @@
     <string name="search_tab_name">검색</string>
     <string name="bookmark_tab_name">북마크</string>
     <string name="delete">삭제</string>
+    <string name="back_pressed_message">한 번 더 누르 시면 앱이 종료 됩니다.</string>
 </resources>
