@@ -1,17 +1,20 @@
 package com.example.lezhinbookmark.bookmark.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.lezhinbookmark.bookmark.repository.LZBookmarkRepository
 import com.example.lezhinbookmark.common.LZUtils
 import com.example.lezhinbookmark.search.bean.LZDocument
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 sealed interface BookmarkUiState {
     val isLoading: Boolean
@@ -31,7 +34,7 @@ private data class BookmarkViewModelState(
     val bookmarkData: HashMap<String, Set<LZDocument?>> = hashMapOf(),
 ) {
     fun toUiState(): BookmarkUiState =
-        if (LZUtils.getBookmarkMap().isEmpty()) {
+        if (bookmarkData.isEmpty()) {
             BookmarkUiState.NoData(
                 isLoading = isLoading
             )
@@ -58,19 +61,21 @@ class LZBookmarkViewModel(
         .stateIn(viewModelScope, SharingStarted.Eagerly, viewModelState.value.toUiState())
 
     init {
-        val initialData = LZUtils.getBookmarkMap()
-        viewModelState.update { it.copy(bookmarkData = initialData) }
-
         viewModelScope.launch {
-            bookmarkRepository.observeBookmarkData().collect { favorites ->
-                viewModelState.update { it.copy(bookmarkData = favorites) }
-            }
+            val initialData = LZUtils.getBookmarkMap()
+            viewModelState.update { it.copy(bookmarkData = initialData) }
         }
     }
 
-    fun onUpdateFavoritesMap(keyword: String) {
+    fun onUpdateFavoritesMap(keyword: List<String>) {
         viewModelScope.launch {
-            bookmarkRepository.onUpdateFavoritesMap(keyword = keyword)
+            val result = withContext(Dispatchers.Default) {
+                bookmarkRepository.onUpdateFavoritesMap(bookmarkData = viewModelState.value.bookmarkData, keyword = keyword)
+            }
+
+            viewModelState.update {
+                it.copy(bookmarkData = result)
+            }
         }
     }
 

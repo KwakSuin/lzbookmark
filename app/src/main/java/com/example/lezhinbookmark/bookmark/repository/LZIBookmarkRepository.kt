@@ -4,7 +4,5 @@ import com.example.lezhinbookmark.search.bean.LZDocument
 import kotlinx.coroutines.flow.MutableStateFlow
 
 interface LZIBookmarkRepository {
-    fun observeBookmarkData(): MutableStateFlow<HashMap<String, Set<LZDocument?>>>
-
-    suspend fun onUpdateFavoritesMap(keyword: String)
+    suspend fun onUpdateFavoritesMap(bookmarkData: HashMap<String, Set<LZDocument?>>, keyword: List<String>): HashMap<String, Set<LZDocument?>>
 }

@@ -29,7 +29,7 @@ fun LZBookmarkRoute(viewModel: LZBookmarkViewModel) {
 @Composable
 fun LZBookmarkRoute(
     uiState: BookmarkUiState,
-    onUpdateFavorite: (String) -> Unit
+    onUpdateFavorite: (List<String>) -> Unit
 ) {
     LZBookmarkContents {
         when (uiState) {

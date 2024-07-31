@@ -1,20 +1,13 @@
 package com.example.lezhinbookmark.bookmark.repository
 
-import com.example.lezhinbookmark.common.LZUtils
 import com.example.lezhinbookmark.search.bean.LZDocument
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 
 class LZBookmarkRepository: LZIBookmarkRepository {
-    private val bookmarkData = MutableStateFlow<HashMap<String, Set<LZDocument?>>>(hashMapOf())
-
-    override suspend fun onUpdateFavoritesMap(keyword: String) {
-        val bookmarkMap = LZUtils.getBookmarkMap()
-
-        bookmarkData.update {
-            bookmarkMap.apply { remove(keyword) }
+    override suspend fun onUpdateFavoritesMap(bookmarkData: HashMap<String, Set<LZDocument?>>, keyword: List<String>): HashMap<String, Set<LZDocument?>> {
+        return bookmarkData.apply {
+            keyword.forEach { key ->
+                remove(key)
+            }
         }
     }
-
-    override fun observeBookmarkData(): MutableStateFlow<HashMap<String, Set<LZDocument?>>> = bookmarkData
 }

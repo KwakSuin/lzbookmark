@@ -65,6 +65,11 @@ fun LZMain(widthSizeClass: WindowWidthSizeClass,) {
     BackOnPressed()
 }
 
+/**
+ * Bottom Navigation Bar
+ *
+ * @param navController             navigation controller
+ */
 @Composable
 fun LZBottomAppBar(navController: NavHostController) {
     val items = listOf(
@@ -90,6 +95,7 @@ fun LZBottomAppBar(navController: NavHostController) {
                 selected = currentRoute == item.screen,
                 onClick = {
                     navController.navigate(item.screen) {
+                        launchSingleTop = true
                         popUpTo(navController.graph.startDestinationId) {
                             inclusive = true
                         }
@@ -107,6 +113,12 @@ fun LZBottomAppBar(navController: NavHostController) {
     }
 }
 
+/**
+ * Navigation
+ *
+ * @param navController             navigation controller
+ * @param navigateToScreen          navigate to screen
+ */
 @Composable
 fun LZNavHost(
     navController: NavHostController = rememberNavController(),
@@ -141,6 +153,9 @@ fun LZNavHost(
     }
 }
 
+/**
+ * Back Pressed
+ */
 @Composable
 fun BackOnPressed() {
     val context = LocalContext.current
