@@ -4,10 +4,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.lezhinbookmark.R
@@ -17,11 +21,16 @@ import com.example.lezhinbookmark.search.ui.DefaultScreen
 
 
 @Composable
-fun LZBookmarkRoute(viewModel: LZBookmarkViewModel) {
+fun LZBookmarkRoute(
+    viewModel: LZBookmarkViewModel,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LZBookmarkRoute(
         uiState = uiState,
+        snackbarHostState = snackbarHostState,
+        onErrorDismiss = { viewModel.errorShown(it) },
         onUpdateFavorite = { viewModel.onUpdateFavoritesMap(it) }
     )
 }
@@ -29,6 +38,8 @@ fun LZBookmarkRoute(viewModel: LZBookmarkViewModel) {
 @Composable
 fun LZBookmarkRoute(
     uiState: BookmarkUiState,
+    snackbarHostState: SnackbarHostState,
+    onErrorDismiss: (Long) -> Unit,
     onUpdateFavorite: (List<String>) -> Unit
 ) {
     LZBookmarkContents {
@@ -42,6 +53,19 @@ fun LZBookmarkRoute(
                     onUpdateFavorite = onUpdateFavorite
                 )
             }
+        }
+    }
+
+    if (uiState.errorMessages.isNotEmpty()) {
+        val errorMessage = remember(uiState) { uiState.errorMessages[0] }
+        val errorMessageText: String = stringResource(errorMessage.messageId)
+        val onErrorDismissState by rememberUpdatedState(onErrorDismiss)
+
+        LaunchedEffect(errorMessageText, snackbarHostState) {
+            snackbarHostState.showSnackbar(
+                message = errorMessageText,
+            )
+            onErrorDismissState(errorMessage.id)
         }
     }
 }

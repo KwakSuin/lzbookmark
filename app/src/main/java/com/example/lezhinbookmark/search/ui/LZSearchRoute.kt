@@ -4,11 +4,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
@@ -24,21 +28,28 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun LZSearchRoute(viewModel: LZSearchViewModel) {
+fun LZSearchRoute(
+    viewModel: LZSearchViewModel,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LZSearchRoute(
         uiState = uiState,
+        snackbarHostState =  snackbarHostState,
         onUpdateFavorite = { keyword, document -> viewModel.onUpdateFavorites(keyword, document) },
-        onUpdateSearchInput = { viewModel.onSearchKeywordChanged(it) }
+        onUpdateSearchInput = { viewModel.onSearchKeywordChanged(it) },
+        onErrorDismiss = { viewModel.errorShown(it) }
     )
 }
 
 @Composable
 fun LZSearchRoute(
     uiState: SearchUiState,
+    snackbarHostState: SnackbarHostState,
     onUpdateFavorite: (String, LZDocument?) -> Unit,
     onUpdateSearchInput: (String) -> Unit,
+    onErrorDismiss: (Long) -> Unit,
 ) {
     LZSearchContents(
         onUpdateSearchInput = onUpdateSearchInput
@@ -52,9 +63,22 @@ fun LZSearchRoute(
                     images = uiState.images,
                     favorites = uiState.favorites,
                     searchKeyword = uiState.searchInput,
-                    onUpdateFavorite = onUpdateFavorite
+                    onUpdateFavorite = onUpdateFavorite,
                 )
             }
+        }
+    }
+
+    if (uiState.errorMessages.isNotEmpty()) {
+        val errorMessage = remember(uiState) { uiState.errorMessages[0] }
+        val errorMessageText: String = stringResource(errorMessage.messageId)
+        val onErrorDismissState by rememberUpdatedState(onErrorDismiss)
+
+        LaunchedEffect(errorMessageText, snackbarHostState) {
+            snackbarHostState.showSnackbar(
+                message = errorMessageText,
+            )
+            onErrorDismissState(errorMessage.id)
         }
     }
 }

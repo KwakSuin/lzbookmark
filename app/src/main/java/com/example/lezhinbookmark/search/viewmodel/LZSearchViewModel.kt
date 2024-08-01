@@ -3,6 +3,7 @@ package com.example.lezhinbookmark.search.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.lezhinbookmark.common.LZErrorMessage
 import com.example.lezhinbookmark.search.bean.LZDocument
 import com.example.lezhinbookmark.search.repository.LZSearchRepository
 import kotlinx.coroutines.Dispatchers
@@ -17,15 +18,18 @@ import kotlinx.coroutines.withContext
 sealed interface SearchUiState {
     val isLoading: Boolean
     val searchInput: String
+    val errorMessages: List<LZErrorMessage>
 
     data class NoData(
         override val isLoading: Boolean,
-        override val searchInput: String
+        override val searchInput: String,
+        override val errorMessages: List<LZErrorMessage>
     ): SearchUiState
 
     data class HasData(
         override val isLoading: Boolean,
         override val searchInput: String,
+        override val errorMessages: List<LZErrorMessage>,
         val images: List<LZDocument?>,
         val favorites: Set<LZDocument?> = emptySet(),
     ): SearchUiState
@@ -35,20 +39,23 @@ private data class SearchViewModelState(
     val images: List<LZDocument?> = emptyList(),
     val favorites: Set<LZDocument?> = emptySet(),
     val isLoading: Boolean = false,
-    val searchInput: String = ""
+    val searchInput: String = "",
+    val errorMessages: List<LZErrorMessage> = emptyList()
 ) {
     fun toUiState(): SearchUiState =
         if (images.isEmpty()) {
             SearchUiState.NoData(
                 isLoading = isLoading,
-                searchInput = searchInput
+                searchInput = searchInput,
+                errorMessages = errorMessages
             )
         } else {
             SearchUiState.HasData(
                 images = images,
                 isLoading = isLoading,
                 searchInput = searchInput,
-                favorites = favorites
+                favorites = favorites,
+                errorMessages = errorMessages
             )
         }
 }
@@ -97,6 +104,13 @@ class LZSearchViewModel(
                 }
                 viewModelState.update { it.copy(images = images, isLoading = false) }
             }
+        }
+    }
+
+    fun errorShown(errorId: Long) {
+        viewModelState.update { currentUiState ->
+            val errorMessages = currentUiState.errorMessages.filterNot { it.id == errorId }
+            currentUiState.copy(errorMessages = errorMessages)
         }
     }
 

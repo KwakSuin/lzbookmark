@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.lezhinbookmark.bookmark.bean.LZBookmarkData
 import com.example.lezhinbookmark.bookmark.repository.LZBookmarkRepository
+import com.example.lezhinbookmark.common.LZErrorMessage
 import com.example.lezhinbookmark.common.LZUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,29 +18,35 @@ import kotlinx.coroutines.withContext
 
 sealed interface BookmarkUiState {
     val isLoading: Boolean
+    val errorMessages: List<LZErrorMessage>
 
     data class NoData(
-        override val isLoading: Boolean
+        override val isLoading: Boolean,
+        override val errorMessages: List<LZErrorMessage>
     ): BookmarkUiState
 
     data class HasData(
         override val isLoading: Boolean,
+        override val errorMessages: List<LZErrorMessage>,
         val bookmark: LZBookmarkData?,
     ): BookmarkUiState
 }
 
 private data class BookmarkViewModelState(
     val isLoading: Boolean = false,
+    val errorMessages: List<LZErrorMessage> = emptyList(),
     val bookmark: LZBookmarkData?,
 ) {
     fun toUiState(): BookmarkUiState =
         if (bookmark == null || bookmark.bookmarkData.isEmpty()) {
             BookmarkUiState.NoData(
-                isLoading = isLoading
+                isLoading = isLoading,
+                errorMessages = errorMessages,
             )
         } else {
             BookmarkUiState.HasData(
                 isLoading = isLoading,
+                errorMessages = errorMessages,
                 bookmark = bookmark,
             )
         }
@@ -74,6 +81,13 @@ class LZBookmarkViewModel(
             viewModelState.update {
                 it.copy(bookmark = result)
             }
+        }
+    }
+
+    fun errorShown(errorId: Long) {
+        viewModelState.update { currentUiState ->
+            val errorMessages = currentUiState.errorMessages.filterNot { it.id == errorId }
+            currentUiState.copy(errorMessages = errorMessages)
         }
     }
 
