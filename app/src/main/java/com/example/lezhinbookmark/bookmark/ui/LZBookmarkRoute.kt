@@ -59,7 +59,11 @@ fun LZBookmarkRoute(
 
     if (uiState.errorMessages.isNotEmpty()) {
         val errorMessage = remember(uiState) { uiState.errorMessages[0] }
-        val errorMessageText: String = stringResource(errorMessage.messageId ?: R.string.error_default)
+        val errorMessageText = when {
+            errorMessage.messageId != null -> stringResource(errorMessage.messageId)
+            errorMessage.messageString != null -> errorMessage.messageString
+            else -> stringResource(R.string.error_default)
+        }
         val onErrorDismissState by rememberUpdatedState(onErrorDismiss)
 
         LaunchedEffect(errorMessageText, snackbarHostState) {
