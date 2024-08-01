@@ -258,6 +258,86 @@ class ExampleFragment : Fragment(R.layout.fragment_example) {
 - **ViewModel 초기화:** Activity에서는 `by viewModels()`, Fragment에서는 `by viewModels()` 또는 `by activityViewModels()`를 사용
 - **LiveData 관찰:** `observe(this, Observer { ... })`에서 `this`는 생명 주기 소유자이며, 데이터 변화를 UI에 반영
 
+## Dagger Hilt 를 같이 사용하는 경우,
+
+## hiltViewModel() 로 ViewModel Instance 를 가져올 때, owner ?
+
+- Hilt와 Compose Navigation을 함께 사용할 때, `hiltViewModel()`은 현재 `NavBackStackEntry`에 기반하여 ViewModel을 제공함
+- `NavBackStackEntry`를 `owner`로 사용하여 ViewModel을 관리함
+
+### `hiltViewModel()` 사용법
+
+1. `NavHost`와 `NavController`를 설정
+2. `hiltViewModel()`을 사용하여 ViewModel을 Composable 함수 내에서 가져옴
+3. `NavBackStackEntry`가 ViewModel의 범위를 결정하므로, Navigation에 따라 ViewModel을 올바르게 주입할 수 있음
+
+### 1. Navigation Graph 설정
+
+```kotlin
+@Composable
+fun Navigation() {
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = "search") {
+        composable("search") {
+            val viewModel: SearchViewModel = hiltViewModel()
+            LZSearchScreen(viewModel = viewModel, navController = navController)
+        }
+        composable("bookmark") {
+            val viewModel: BookmarkViewModel = hiltViewModel()
+            LZBookmarkScreen(viewModel = viewModel, navController = navController)
+        }
+    }
+}
+```
+
+### 2.  Hilt를 사용하여 주입
+
+```kotlin
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    // Dependencies here
+) : ViewModel() {
+   ...
+}
+
+// BookmarkViewModel.kt
+@HiltViewModel
+class BookmarkViewModel @Inject constructor(
+    // Dependencies here
+) : ViewModel() {
+   ...
+}
+```
+
+### 3. ViewModel 사용
+
+```kotlin
+// LZSearchScreen.kt
+@Composable
+fun LZSearchScreen(
+    viewModel: SearchViewModel,
+    navController: NavController
+) {
+    ...
+}
+
+// LZBookmarkScreen.kt
+@Composable
+fun LZBookmarkScreen(
+    viewModel: BookmarkViewModel,
+    navController: NavController
+) {
+    ...
+}
+
+```
+
+### 요약
+
+- **ViewModel의 범위**: `hiltViewModel()`은 현재의 `NavBackStackEntry`를 기반으로 ViewModel을 생성하므로, Navigation의 경로에 따라 ViewModel의 생명 주기가 결정됨
+- **Owner 설정**: `hiltViewModel()`은 자동으로 적절한 `NavBackStackEntry`를 `owner`로 설정하므로, 별도로 `owner`를 설정할 필요는 없음
+
 ---
 
 ## Android Paging 3
@@ -447,3 +527,10 @@ class MainActivity : AppCompatActivity() {
 - **이미지** : `coil` 라이브러리 사용
 - **검색 리스트 UI** : `LazyVerticalStaggeredGrid` 사용하여 2 Cell Grid 형식으로 나타냄
 - **Theme** : `MaterialTheme`사용, Blue 계열의 Dark / Light 테마 구현
+  
+---
+
+## 발생할 수 있는 문제점
+
+- 검색 화면에서 검색어 입력 후 1초 뒤 API 호출 동작에서 버벅 거리는 현상 발생 가능성
+- 북마크 데이터를 싱글톤에 저장해서 사용함으로써 디바이스 캐시가 사라지면 북마크 데이터도 사라짐.
