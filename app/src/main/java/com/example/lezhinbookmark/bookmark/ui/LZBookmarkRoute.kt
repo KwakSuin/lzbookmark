@@ -17,9 +17,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.lezhinbookmark.R
 import com.example.lezhinbookmark.bookmark.viewmodel.BookmarkUiState
 import com.example.lezhinbookmark.bookmark.viewmodel.LZBookmarkViewModel
-import com.example.lezhinbookmark.search.ui.DefaultScreen
+import com.example.lezhinbookmark.common.DefaultScreen
 
 
+/**
+ * Bookmark Route
+ *
+ * @param viewModel                 Bookmark ViewModel
+ * @param snackbarHostState         SnackbarHostState
+ */
 @Composable
 fun LZBookmarkRoute(
     viewModel: LZBookmarkViewModel,
@@ -35,6 +41,14 @@ fun LZBookmarkRoute(
     )
 }
 
+/**
+ * Bookmark Route
+ *
+ * @param uiState                   Bookmark UiState
+ * @param snackbarHostState         SnackbarHostState
+ * @param onErrorDismiss            onErrorDismiss
+ * @param onUpdateFavorite          onUpdateFavorite
+ */
 @Composable
 fun LZBookmarkRoute(
     uiState: BookmarkUiState,
@@ -75,6 +89,11 @@ fun LZBookmarkRoute(
     }
 }
 
+/**
+ * Bookmark Common Contents
+ *
+ * @param contents                  Composable Contents
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LZBookmarkContents(

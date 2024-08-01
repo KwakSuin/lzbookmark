@@ -30,8 +30,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.lezhinbookmark.R
 import com.example.lezhinbookmark.bookmark.bean.LZBookmarkData
-import com.example.lezhinbookmark.search.ui.DefaultScreen
+import com.example.lezhinbookmark.common.DefaultScreen
 
+/**
+ * Bookmark Screen
+ *
+ * @param bookmarkData              <Keyword, Document> Data
+ * @param onUpdateFavorite          onUpdated Favorite
+ *
+ * @author si.kwak
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LZBookmarkScreen(

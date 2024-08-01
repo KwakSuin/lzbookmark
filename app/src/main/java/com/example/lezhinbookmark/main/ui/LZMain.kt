@@ -41,6 +41,11 @@ import com.example.lezhinbookmark.search.viewmodel.LZSearchViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+/**
+ * Main Screen
+ *
+ * @param widthSizeClass                device width size
+ */
 @Composable
 fun LZMain(widthSizeClass: WindowWidthSizeClass,) {
     val navController = rememberNavController()
@@ -176,6 +181,11 @@ fun BackOnPressed() {
 }
 
 
+/**
+ * Screen Navi Route
+ *
+ * @property screen                 screen name
+ */
 sealed class ScreenRoute(val screen: String) {
     object SearchScreen: ScreenRoute(LZConstants.SEARCH_SCREEN_ID) {
         fun createRoute(screenId: String) = "SEARCH/$screenId"

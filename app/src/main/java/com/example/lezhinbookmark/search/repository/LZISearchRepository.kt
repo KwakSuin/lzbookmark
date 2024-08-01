@@ -4,6 +4,12 @@ import com.example.lezhinbookmark.common.LZErrorMessage
 import com.example.lezhinbookmark.search.bean.LZDocument
 import kotlinx.coroutines.flow.Flow
 
+
+/**
+ * Search Repository Interface
+ *
+ * @author si.kwak
+ */
 interface LZISearchRepository {
     fun observeFavorites(): Flow<Set<LZDocument>>
 

@@ -72,6 +72,11 @@ class LZBookmarkViewModel(
         }
     }
 
+    /**
+     * Favorites Delete
+     *
+     * @param keyword           favorites keyword
+     */
     fun onUpdateFavoritesMap(keyword: List<String>) {
         viewModelScope.launch {
             val result = withContext(Dispatchers.Default) {
@@ -84,6 +89,11 @@ class LZBookmarkViewModel(
         }
     }
 
+    /**
+     * Error Shown
+     *
+     * @param errorId           error id
+     */
     fun errorShown(errorId: Long) {
         viewModelState.update { currentUiState ->
             val errorMessages = currentUiState.errorMessages.filterNot { it.id == errorId }

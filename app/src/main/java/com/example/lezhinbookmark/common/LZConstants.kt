@@ -1,5 +1,8 @@
 package com.example.lezhinbookmark.common
 
+/**
+ * Constants used throughout the app.
+ */
 object LZConstants {
     const val SEARCH_SCREEN_ID = "SEARCH"
     const val BOOK_MARK_SCREEN_ID = "BOOKMARK"

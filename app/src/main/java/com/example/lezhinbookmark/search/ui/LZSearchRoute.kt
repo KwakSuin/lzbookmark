@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.lezhinbookmark.R
+import com.example.lezhinbookmark.common.DefaultScreen
 import com.example.lezhinbookmark.search.bean.LZDocument
 import com.example.lezhinbookmark.search.viewmodel.LZSearchViewModel
 import com.example.lezhinbookmark.search.viewmodel.SearchUiState
@@ -27,6 +28,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
+/**
+ * Search Route
+ *
+ * @param viewModel             Search ViewModel
+ * @param snackbarHostState     SnackbarHostState
+ */
 @Composable
 fun LZSearchRoute(
     viewModel: LZSearchViewModel,
@@ -43,6 +50,15 @@ fun LZSearchRoute(
     )
 }
 
+/**
+ * Search Route
+ *
+ * @param uiState               uiState
+ * @param snackbarHostState     SnackbarHostState
+ * @param onUpdateFavorite      onUdateFavorite
+ * @param onUpdateSearchInput   onUpdateSearchInput
+ * @param onErrorDismiss        onErrorDismiss
+ */
 @Composable
 fun LZSearchRoute(
     uiState: SearchUiState,
@@ -87,6 +103,12 @@ fun LZSearchRoute(
     }
 }
 
+/**
+ * Search Common Contents
+ *
+ * @param onUpdateSearchInput               onUpdateSearchInput
+ * @param contents                          Composable Contents
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LZSearchContents(

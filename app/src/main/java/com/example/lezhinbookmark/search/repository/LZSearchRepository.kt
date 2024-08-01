@@ -12,6 +12,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
+/**
+ * Search Repository
+ *
+ * @author si.kwak
+ */
 class LZSearchRepository: LZISearchRepository {
     private val favorites = MutableStateFlow<Set<LZDocument>>(setOf())
     private val bookmarkMap = hashMapOf<String, Set<LZDocument?>>()

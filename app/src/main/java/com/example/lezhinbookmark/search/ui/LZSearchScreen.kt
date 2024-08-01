@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,7 +15,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,16 +35,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.lezhinbookmark.R
-import com.example.lezhinbookmark.common.LZUiUtils.noRippleClickable
+import com.example.lezhinbookmark.common.DefaultScreen
+import com.example.lezhinbookmark.common.noRippleClickable
 import com.example.lezhinbookmark.search.bean.LZDocument
 
+/**
+ * Search Screen
+ *
+ * @param images                    Image List
+ * @param favorites                 Bookmark Data
+ * @param searchKeyword             Search Input Keyword
+ * @param onUpdateFavorite          onUpdateFavorite
+ */
 @Composable
 fun LZSearchScreen(
     images: List<LZDocument?>,
@@ -86,6 +89,12 @@ fun LZSearchScreen(
     }
 }
 
+/**
+ * Search Bar Ui
+ *
+ * @param searchQuery               search keyword
+ * @param onQueryChanged            onQueryChanged
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
@@ -122,6 +131,14 @@ fun SearchBar(
     )
 }
 
+/**
+ * Grid Image Item
+ *
+ * @param image                     Image Data
+ * @param halfScreenWidth           Device Half Size
+ * @param isBookmarked              Bookmark Check flag
+ * @param onUpdateFavorite          onUpdateFavorite
+ */
 @Composable
 fun ImageItem(
     image: LZDocument?,
@@ -159,18 +176,5 @@ fun ImageItem(
                 tint = if (isBookmarked) Color.Red else Color.White
             )
         }
-    }
-}
-
-@Composable
-fun DefaultScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(imageVector = Icons.Default.Clear, contentDescription = stringResource(id = R.string.search_no_data_message))
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(text = stringResource(id = R.string.search_no_data_message))
     }
 }
