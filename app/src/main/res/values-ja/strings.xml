@@ -5,4 +5,5 @@
     <string name="bookmark_tab_name">ブックマーク</string>
     <string name="delete">削除</string>
     <string name="back_pressed_message">もう一度押すと、アプリが終了します。</string>
+    <string name="error_default">後でもう一度お試しください。</string>
 </resources>

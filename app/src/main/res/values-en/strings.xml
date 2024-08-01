@@ -5,4 +5,5 @@
     <string name="bookmark_tab_name">Bookmark</string>
     <string name="delete">Delete</string>
     <string name="back_pressed_message">Press again to exit the application.</string>
+    <string name="error_default">Please try again later.</string>
 </resources>

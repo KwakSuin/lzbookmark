@@ -18,18 +18,18 @@ import kotlinx.coroutines.withContext
 sealed interface SearchUiState {
     val isLoading: Boolean
     val searchInput: String
-    val errorMessages: List<LZErrorMessage>
+    val errorMessages: List<LZErrorMessage?>
 
     data class NoData(
         override val isLoading: Boolean,
         override val searchInput: String,
-        override val errorMessages: List<LZErrorMessage>
+        override val errorMessages: List<LZErrorMessage?>
     ): SearchUiState
 
     data class HasData(
         override val isLoading: Boolean,
         override val searchInput: String,
-        override val errorMessages: List<LZErrorMessage>,
+        override val errorMessages: List<LZErrorMessage?>,
         val images: List<LZDocument?>,
         val favorites: Set<LZDocument?> = emptySet(),
     ): SearchUiState
@@ -40,7 +40,7 @@ private data class SearchViewModelState(
     val favorites: Set<LZDocument?> = emptySet(),
     val isLoading: Boolean = false,
     val searchInput: String = "",
-    val errorMessages: List<LZErrorMessage> = emptyList()
+    val errorMessages: List<LZErrorMessage?> = emptyList()
 ) {
     fun toUiState(): SearchUiState =
         if (images.isEmpty()) {
@@ -99,17 +99,22 @@ class LZSearchViewModel(
                 viewModelState.update { it.copy(images = emptyList(), isLoading = false) }
             } else {
                 viewModelState.update { it.copy(isLoading = true) }
-                val images = withContext(Dispatchers.IO) {
+                val (isSuccess, images, errors) = withContext(Dispatchers.IO) {
                     searchRepository.getSearchImage(searchInput)
                 }
-                viewModelState.update { it.copy(images = images, isLoading = false) }
+
+                if (isSuccess) {
+                    viewModelState.update { it.copy(images = images, isLoading = false) }
+                } else {
+                    viewModelState.update { it.copy(errorMessages = it.errorMessages + errors, isLoading = false) }
+                }
             }
         }
     }
 
     fun errorShown(errorId: Long) {
         viewModelState.update { currentUiState ->
-            val errorMessages = currentUiState.errorMessages.filterNot { it.id == errorId }
+            val errorMessages = currentUiState.errorMessages.filterNot { it?.id == errorId }
             currentUiState.copy(errorMessages = errorMessages)
         }
     }

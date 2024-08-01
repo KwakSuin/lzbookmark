@@ -5,6 +5,7 @@ import com.example.lezhinbookmark.api.LZApiService
 import com.example.lezhinbookmark.api.LZRestClient
 import com.example.lezhinbookmark.api.checkApiResponse
 import com.example.lezhinbookmark.bookmark.bean.LZBookmarkData
+import com.example.lezhinbookmark.common.LZErrorMessage
 import com.example.lezhinbookmark.common.LZUtils
 import com.example.lezhinbookmark.search.bean.LZDocument
 import kotlinx.coroutines.flow.Flow
@@ -15,16 +16,16 @@ class LZSearchRepository: LZISearchRepository {
     private val favorites = MutableStateFlow<Set<LZDocument>>(setOf())
     private val bookmarkMap = hashMapOf<String, Set<LZDocument?>>()
 
-    override suspend fun getSearchImage(query: String): List<LZDocument?> {
+    override suspend fun getSearchImage(query: String): Triple<Boolean, List<LZDocument?>, LZErrorMessage?> {
         val restClient = LZRestClient<LZApiService>()
 
         return when (val result = checkApiResponse { restClient.getClient(LZApiService::class.java).getSearchImage(query = query) }) {
             is ApiResult.OnSuccess -> {
-                result.responseDTO.document
+                Triple(first = true, second = result.responseDTO.document, third = null)
             }
 
             is ApiResult.OnFailure -> {
-                arrayListOf(null)
+                Triple(first = false, second = arrayListOf(null), third = result.errorObject)
             }
         }
     }
