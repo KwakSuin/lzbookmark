@@ -387,3 +387,63 @@ class MainActivity : AppCompatActivity() {
 5. **성능 문제**
     - 데이터 소스의 구조나 네트워크 상태에 따라 성능 이슈가 발생할 수 있음
     - 잘못된 설정이나 최적화가 이루어지지 않은 경우, 스크롤 성능에 악영향을 미칠 수 있음
+  
+---
+
+- **Navihost, Navigate, ViewModel :**  [Jetpack Compose SampleApp](https://github.com/android/compose-samples/tree/main) 의 [Jetnews](https://github.com/android/compose-samples/tree/main/JetNews) 프로젝트를 모티브로 하여 개발
+    - 참고 Code
+    
+    ```kotlin
+    // VieWModel
+    sealed interface SearchUiState {
+        val isLoading: Boolean
+        val searchInput: String
+        val errorMessages: List<LZErrorMessage?>
+    
+        data class NoData(
+            override val isLoading: Boolean,
+            override val searchInput: String,
+            override val errorMessages: List<LZErrorMessage?>
+        ): SearchUiState
+    
+        data class HasData(
+            override val isLoading: Boolean,
+            override val searchInput: String,
+            override val errorMessages: List<LZErrorMessage?>,
+            val images: List<LZDocument?>,
+            val favorites: Set<LZDocument?> = emptySet(),
+        ): SearchUiState
+    }
+    
+    private data class SearchViewModelState(
+        val images: List<LZDocument?> = emptyList(),
+        val favorites: Set<LZDocument?> = emptySet(),
+        val isLoading: Boolean = false,
+        val searchInput: String = "",
+        val errorMessages: List<LZErrorMessage?> = emptyList()
+    ) {
+    ...
+    }
+    
+     fun errorShown(errorId: Long) {
+        viewModelState.update { currentUiState ->
+            val errorMessages = currentUiState.errorMessages.filterNot { it?.id == errorId }
+            currentUiState.copy(errorMessages = errorMessages)
+        }
+    }
+    
+    // Navigation
+    sealed class ScreenRoute(val screen: String) {
+        object SearchScreen: ScreenRoute(LZConstants.SEARCH_SCREEN_ID) {
+            fun createRoute(screenId: String) = "SEARCH/$screenId"
+        }
+        object BookMarkScreen : ScreenRoute(LZConstants.BOOK_MARK_SCREEN_ID) {
+            fun createRoute(screenId: String) = "BOOKMARK/$screenId"
+        }
+    }
+    ```
+    
+- **API 통신** : `okhttp`, `retrofit` 라이브러리 사용
+- **이미지** : `coil` 라이브러리 사용
+- **검색 리스트 UI** : `LazyVerticalStaggeredGrid` 사용하여 2 Cell Grid 형식으로 나타냄
+- **Theme** : `MaterialTheme`사용, Blue 계열의 Dark / Light 테마 구현
