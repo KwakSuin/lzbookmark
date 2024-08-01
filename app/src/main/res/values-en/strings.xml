@@ -6,4 +6,5 @@
     <string name="delete">Delete</string>
     <string name="back_pressed_message">Press again to exit the application.</string>
     <string name="error_default">Please try again later.</string>
+    <string name="search_no_data_message">Please enter your search term.</string>
 </resources>

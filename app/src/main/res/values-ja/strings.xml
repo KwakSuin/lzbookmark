@@ -6,4 +6,5 @@
     <string name="delete">削除</string>
     <string name="back_pressed_message">もう一度押すと、アプリが終了します。</string>
     <string name="error_default">後でもう一度お試しください。</string>
+    <string name="search_no_data_message">検索語を入力してください。</string>
 </resources>

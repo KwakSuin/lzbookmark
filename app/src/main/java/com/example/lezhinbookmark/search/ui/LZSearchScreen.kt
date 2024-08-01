@@ -39,11 +39,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.lezhinbookmark.R
 import com.example.lezhinbookmark.common.LZUiUtils.noRippleClickable
 import com.example.lezhinbookmark.search.bean.LZDocument
 
@@ -167,8 +169,8 @@ fun DefaultScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(imageVector = Icons.Default.Clear, contentDescription = "no data")
+        Icon(imageVector = Icons.Default.Clear, contentDescription = stringResource(id = R.string.search_no_data_message))
         Spacer(modifier = Modifier.height(20.dp))
-        Text(text = "No Data")
+        Text(text = stringResource(id = R.string.search_no_data_message))
     }
 }
